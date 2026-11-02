@@ -2,13 +2,13 @@
 // CẤU HÌNH TÀI KHOẢN NGÂN HÀNG NHẬN TIỀN CỦA BẠN (HỖ TRỢ VIETQR TỰ ĐỘNG)
 // ==========================================================================
 const BANK_CONFIG = {
-  BANK_ID: "MB",               // Mã ngân hàng: MB, VCB, TCB, ACB, VPB, ICB...
-  BANK_NAME: "MBBank (Quân Đội)",
-  ACCOUNT_NO: "0399888899",     // Số tài khoản ngân hàng của bạn
-  ACCOUNT_NAME: "NGUYEN VAN A", // Tên chủ tài khoản (Viết hoa không dấu)
-  
+  BANK_ID: "tcb",               // Mã ngân hàng: MB, VCB, TCB, ACB, VPB, ICB...
+  BANK_NAME: "Techcombank (Ngân hàng TMCP Kỹ Thương Việt Nam)",
+  ACCOUNT_NO: "681409200568",     // Số tài khoản ngân hàng của bạn
+  ACCOUNT_NAME: "NGUYEN LONG VU", // Tên chủ tài khoản (Viết hoa không dấu)
+
   // Link tải file cài đặt Desktop App
-  DOWNLOAD_URL: "https://github.com/your-username/repurpose-video/releases/latest"
+  DOWNLOAD_URL: "https://github.com/user-attachments/files/34285908/AutoVideoRepurposerPRO_v2.0.zip"
 };
 
 // State đơn hàng hiện tại
