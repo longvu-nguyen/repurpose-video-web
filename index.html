@@ -22,6 +22,7 @@
         <a href="#features">Tính năng</a>
         <a href="#pricing">Bảng giá</a>
         <a href="#lookup" onclick="openLookupModal()">Tra cứu Key</a>
+        <a href="admin.html" target="_blank" style="color: #fbbf24;">👑 Quản Trị Duyệt Đơn</a>
       </nav>
       <div class="nav-actions">
         <a href="#pricing" class="btn btn-primary btn-sm">Mua Bản Quyền</a>
@@ -125,7 +126,7 @@
     <div class="container">
       <div class="section-header">
         <h2 class="section-title">Bảng Giá Bản Quyền & Mua Key Tự Động</h2>
-        <p class="section-subtitle">Thanh toán chuyển khoản quét mã VietQR - Nhận Key bản quyền tự động kích hoạt ngay sau 5 giây!</p>
+        <p class="section-subtitle">Chuyển khoản quét mã VietQR - Admin xác nhận tiền vào tài khoản sẽ cấp Key ngay cho bạn!</p>
       </div>
 
       <div class="pricing-grid">
@@ -209,6 +210,7 @@
     <div class="container footer-container">
       <p>© 2026 Auto Video Repurposer PRO. All rights reserved.</p>
       <div class="footer-links">
+        <a href="admin.html" target="_blank" style="color: #fbbf24;">Trang Quản Trị (Admin)</a>
         <a href="javascript:void(0)" onclick="openLookupModal()">Tra Cứu Key Đã Mua</a>
         <a href="https://t.me/your_telegram" target="_blank">Hỗ trợ Telegram</a>
         <a href="https://zalo.me/your_zalo" target="_blank">Hỗ trợ Zalo</a>
@@ -216,14 +218,14 @@
     </div>
   </footer>
 
-  <!-- MODAL: THANH TOÁN & NHẬN KEY TỰ ĐỘNG -->
+  <!-- MODAL: THANH TOÁN & DUYỆT KEY -->
   <div id="checkoutModal" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal('checkoutModal')">&times;</span>
       
       <!-- BƯỚC 1: Nhập HWID & Xác nhận gói -->
       <div id="step-info">
-        <h3>🛒 Thanh Toán Bản Quyền</h3>
+        <h3>🛒 Đặt Mua Bản Quyền</h3>
         <p class="modal-sub">Gói đã chọn: <b id="selectedPlanName" class="text-primary">3 Tháng</b> (<span id="selectedPlanPrice">249.000đ</span>)</p>
 
         <div class="form-group">
@@ -233,42 +235,47 @@
         </div>
 
         <div class="form-group">
-          <label for="inputEmail">Số điện thoại hoặc Email (để lưu trữ đơn hàng):</label>
-          <input type="text" id="inputContact" placeholder="0987654321 hoặc email@gmail.com" required />
+          <label for="inputContact">Số điện thoại / Zalo của bạn (Để Admin duyệt đơn):</label>
+          <input type="text" id="inputContact" placeholder="0987654321 hoặc link Zalo/Telegram" required />
         </div>
 
         <button class="btn btn-primary btn-block" onclick="proceedToPayment()">Tiếp Tục Thanh Toán VietQR ➡️</button>
       </div>
 
-      <!-- BƯỚC 2: Quét mã VietQR -->
+      <!-- BƯỚC 2: Quét mã VietQR & Chờ duyệt -->
       <div id="step-qr" style="display: none;">
-        <h3>📱 Quét Mã VietQR Để Thanh Toán</h3>
-        <p class="modal-sub">Hệ thống sẽ tự động xuất Key ngay sau khi nhận được chuyển khoản.</p>
+        <h3>📱 Quét Mã VietQR Chuyển Khoản</h3>
+        <p class="modal-sub">Vui lòng quét mã bên dưới để chuyển khoản chính xác nội dung.</p>
 
         <div class="qr-container">
           <img id="qrImage" src="" alt="VietQR Thanh Toán" />
           <div class="transfer-info">
+            <p>Mã đơn: <b id="displayOrderCode" class="text-primary">#REP1234</b></p>
             <p>Ngân hàng: <b id="bankName">MBBank (Quân Đội)</b></p>
-            <p>Số tài khoản: <b id="bankAccount">0399888899</b> <button class="btn-copy-sm" onclick="copyText('0399888899')">Copy</button></p>
+            <p>Số tài khoản: <b id="bankAccount">0399888899</b> <button class="btn-copy-sm" onclick="copyText(document.getElementById('bankAccount').innerText)">Copy</button></p>
             <p>Chủ tài khoản: <b id="accountName">NGUYEN VAN A</b></p>
             <p>Số tiền: <b id="transferAmount" class="text-primary">249.000đ</b></p>
-            <p>Nội dung CK: <b id="transferContent" class="text-warning">REPURPOSE 1234</b> <button class="btn-copy-sm" onclick="copyText(document.getElementById('transferContent').innerText)">Copy</button></p>
+            <p>Nội dung CK: <b id="transferContent" class="text-warning">REP1234</b> <button class="btn-copy-sm" onclick="copyText(document.getElementById('transferContent').innerText)">Copy</button></p>
           </div>
         </div>
 
+        <!-- Trạng thái chờ Admin duyệt -->
+        <div id="waitingStatusBox" style="background:#1e293b; border: 1px solid #334155; padding: 14px; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+          <div style="font-size: 20px; margin-bottom: 4px;">⏳</div>
+          <b style="color: #fbbf24; font-size: 14px;">ĐƠN HÀNG ĐANG CHỜ ADMIN DUYỆT</b>
+          <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Sau khi bạn chuyển khoản, Admin kiểm tra tài khoản nhận được tiền sẽ bấm <b>DUYỆT</b>.<br>Trang này sẽ <b>tự động hiện Key</b> ngay khi được duyệt!</p>
+        </div>
+
         <div class="payment-actions">
-          <button class="btn btn-success btn-block" id="btnConfirmPaid" onclick="simulatePaymentSuccess()">
-            ✅ Tôi Đã Chuyển Khoản Thành Công
-          </button>
-          <button class="btn btn-secondary btn-block btn-sm" onclick="backToInfo()">Quay Lại</button>
+          <button class="btn btn-secondary btn-block btn-sm" onclick="backToInfo()">Quay Lại Chỉnh Sửa Thông Tin</button>
         </div>
       </div>
 
-      <!-- BƯỚC 3: Xuất Key Tự Động -->
+      <!-- BƯỚC 3: Xuất Key Sau Khi Admin Duyệt -->
       <div id="step-success" style="display: none;">
         <div class="success-icon">🎉</div>
-        <h3>Thanh Toán Thành Công!</h3>
-        <p class="modal-sub">Cảm ơn bạn! Dưới đây là Key bản quyền dành riêng cho máy tính của bạn:</p>
+        <h3 style="color: #10b981;">Đơn Hàng Đã Được Admin Duyệt!</h3>
+        <p class="modal-sub">Admin đã xác nhận thanh toán thành công. Dưới đây là Key bản quyền dành riêng cho máy tính của bạn:</p>
 
         <div class="key-result-box">
           <span class="key-label">KEY BẢN QUYỀN CỦA BẠN:</span>
@@ -293,11 +300,11 @@
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal('lookupModal')">&times;</span>
       <h3>🔍 Tra Cứu Key Đã Mua</h3>
-      <p class="modal-sub">Nhập mã máy tính (HWID) để tìm lại Key bản quyền của bạn.</p>
+      <p class="modal-sub">Nhập mã máy tính (HWID) hoặc Mã đơn hàng để tìm lại Key bản quyền của bạn.</p>
 
       <div class="form-group">
-        <label for="lookupHwid">Mã máy tính (HWID):</label>
-        <input type="text" id="lookupHwid" placeholder="HWID-XXXX-XXXX-XXXX-XXXX" />
+        <label for="lookupHwid">Mã máy tính (HWID) hoặc Mã đơn:</label>
+        <input type="text" id="lookupHwid" placeholder="HWID-XXXX-... hoặc REP1234" />
       </div>
 
       <button class="btn btn-primary btn-block" onclick="performLookup()">Tra Cứu Ngay</button>
@@ -306,7 +313,7 @@
     </div>
   </div>
 
+  <script src="js/store.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
-
