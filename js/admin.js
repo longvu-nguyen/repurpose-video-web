@@ -1,32 +1,71 @@
 let currentFilter = "ALL";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Kiểm tra đăng nhập
+  // 1. Kiểm tra nếu có mã PIN trên URL (Ví dụ: admin.html?pin=admin123) thì tự động đăng nhập luôn
+  const urlParams = new URLSearchParams(window.location.search);
+  const pinFromUrl = urlParams.get("pin");
+  const targetPin = (typeof STORE_CONFIG !== "undefined" && STORE_CONFIG.ADMIN_PIN) ? STORE_CONFIG.ADMIN_PIN : "admin123";
+
+  if (pinFromUrl && pinFromUrl === targetPin) {
+    sessionStorage.setItem("admin_auth", "true");
+  }
+
+  // 2. Kiểm tra trạng thái đã đăng nhập trước đó
   if (sessionStorage.getItem("admin_auth") === "true") {
-    document.getElementById("loginOverlay").style.display = "none";
+    const overlay = document.getElementById("loginOverlay");
+    if (overlay) overlay.style.display = "none";
     refreshAdminOrders();
   }
 
-  // Lắng nghe đơn hàng mới từ các tab khác theo thời gian thực
+  // 3. Lắng nghe đơn hàng mới từ các tab khác theo thời gian thực
   if (window.BroadcastChannel) {
-    const channel = new BroadcastChannel("order_channel");
-    channel.onmessage = () => {
-      refreshAdminOrders();
-    };
+    try {
+      const channel = new BroadcastChannel("order_channel");
+      channel.onmessage = () => {
+        refreshAdminOrders();
+      };
+    } catch (e) {
+      console.warn("BroadcastChannel not supported", e);
+    }
   }
 
-  // Tự động làm mới mỗi 3 giây
+  // 4. Tự động làm mới mỗi 3 giây
   setInterval(refreshAdminOrders, 3000);
 });
 
+function togglePinVisibility() {
+  const pinInput = document.getElementById("adminPinInput");
+  if (pinInput.type === "password") {
+    pinInput.type = "text";
+  } else {
+    pinInput.type = "password";
+  }
+}
+
 function checkAdminPin() {
-  const pin = document.getElementById("adminPinInput").value.trim();
-  if (pin === STORE_CONFIG.ADMIN_PIN) {
+  const pinInput = document.getElementById("adminPinInput");
+  const errorMsg = document.getElementById("loginErrorMsg");
+  const pin = pinInput.value.trim();
+  
+  const targetPin = (typeof STORE_CONFIG !== "undefined" && STORE_CONFIG.ADMIN_PIN) 
+    ? STORE_CONFIG.ADMIN_PIN 
+    : "admin123";
+
+  if (!pin) {
+    errorMsg.innerText = "Vui lòng nhập mã PIN!";
+    errorMsg.style.display = "block";
+    return;
+  }
+
+  if (pin === targetPin) {
     sessionStorage.setItem("admin_auth", "true");
     document.getElementById("loginOverlay").style.display = "none";
+    errorMsg.style.display = "none";
     refreshAdminOrders();
   } else {
-    alert("❌ Mã PIN không chính xác!");
+    errorMsg.innerText = "❌ Mã PIN không chính xác! Hãy thử lại (mặc định: admin123)";
+    errorMsg.style.display = "block";
+    pinInput.focus();
   }
 }
 
@@ -45,7 +84,7 @@ function setFilter(filter, btn) {
 function refreshAdminOrders() {
   if (sessionStorage.getItem("admin_auth") !== "true") return;
 
-  const orders = OrderStore.getOrders();
+  const orders = (typeof OrderStore !== "undefined") ? OrderStore.getOrders() : [];
 
   // 1. Tính toán thống kê
   let pendingCount = 0;
@@ -60,10 +99,15 @@ function refreshAdminOrders() {
     }
   });
 
-  document.getElementById("statPending").innerText = pendingCount;
-  document.getElementById("statApproved").innerText = approvedCount;
-  document.getElementById("statRevenue").innerText = totalRevenue.toLocaleString("vi-VN") + "đ";
-  document.getElementById("statTotal").innerText = orders.length;
+  const elPending = document.getElementById("statPending");
+  const elApproved = document.getElementById("statApproved");
+  const elRevenue = document.getElementById("statRevenue");
+  const elTotal = document.getElementById("statTotal");
+
+  if (elPending) elPending.innerText = pendingCount;
+  if (elApproved) elApproved.innerText = approvedCount;
+  if (elRevenue) elRevenue.innerText = totalRevenue.toLocaleString("vi-VN") + "đ";
+  if (elTotal) elTotal.innerText = orders.length;
 
   // 2. Lọc danh sách theo Tab
   let filtered = orders;
@@ -73,6 +117,8 @@ function refreshAdminOrders() {
 
   // 3. Render Table
   const tbody = document.getElementById("adminOrderTableBody");
+  if (!tbody) return;
+
   if (!filtered || filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: #94a3b8; padding: 30px;">Không có đơn hàng nào trong mục này.</td></tr>`;
     return;
@@ -139,4 +185,3 @@ function escapeHtml(str) {
   if (!str) return "";
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
-
